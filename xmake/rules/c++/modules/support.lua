@@ -125,7 +125,7 @@ function strip_flags(target, flags, opt)
 
     local strippeable_flags, splitted_strippeable_flags
     if not opt.requiresonly then
-        strippeable_flags, splitted_strippeable_flags =  _support(target).strippeable_flags()
+        strippeable_flags, splitted_strippeable_flags =  _support(target).strippeable_flags(target)
         if opt and opt.strip_defines then
             table.join2(splitted_strippeable_flags, {"D", "U"})
         end
@@ -150,12 +150,13 @@ function strip_flags(target, flags, opt)
             strip = true
             strip_next_flag = false
         else
+            local test_flag = flag:startswith("/clang:") and flag:sub(8) or flag
             for _, _flag in ipairs(strippeable_flags) do
-                if (flag == "/" .. _flag) or (flag == "--" .. _flag) or (flag == "-" .. _flag) then
+                if (test_flag == "/" .. _flag) or (test_flag == "--" .. _flag) or (test_flag == "-" .. _flag) then
                     strip = true
-                    strip_next_flag = splitted_strippeable_flags_set:has(flag)
+                    strip_next_flag = splitted_strippeable_flags_set:has(test_flag)
                     break
-                elseif flag:startswith("/" .. _flag) or flag:startswith("--" .. _flag) or flag:startswith("-" .. _flag) then
+                elseif test_flag:startswith("/" .. _flag) or test_flag:startswith("--" .. _flag) or test_flag:startswith("-" .. _flag) then
                     strip = true
                     break
                 end

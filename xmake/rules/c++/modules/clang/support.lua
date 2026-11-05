@@ -138,7 +138,7 @@ function has_precompile_reduced_bmi_support(target)
 end
 
 -- flags that doesn't affect bmi generation
-function strippeable_flags()
+function strippeable_flags(target)
     -- speculative list as there is no resource that list flags that prevent reusability, this list will likely be improve over time
     -- @see https://clang.llvm.org/docs/StandardCPlusPlusModules.html#consistency-requirement
     local strippable_flags = {
@@ -158,6 +158,27 @@ function strippeable_flags()
         "cxx-isystem",
         "framework"
     }
+    if target and target:has_tool("cxx", "clang_cl") then
+        table.join2(strippable_flags, {
+            "TP",
+            "errorReport",
+            "nologo",
+            "MP",
+            "Fp",
+            "Fm",
+            "Fe",
+            "Fd",
+            "FS",
+            "FC",
+            "Zi",
+            "Z7",
+            "diagnostics",
+            "cgthreads",
+            "analyze",
+            "external"
+        })
+        table.join2(splitted_strippeable_flags, {"Fo", "imsvc"})
+    end
     return strippable_flags, splitted_strippeable_flags
 end
 
